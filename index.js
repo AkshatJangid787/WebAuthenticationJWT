@@ -1,4 +1,6 @@
 const express = require('express');
+const jwt = require('jsonwebtoken')
+const JWT_SECRET = "randomjwtsecret" // always stored in .env file
 
 const app = express();
 app.use(express.json());
@@ -36,7 +38,6 @@ app.post("/signup", (req, res)=>{
    })
 })
 
-
 app.post("/signin", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -44,8 +45,12 @@ app.post("/signin", (req, res) => {
     const user = users.find(user => user.username === username && user.password === password);
 
     if (user) {
-        const token = generateToken();
-        user.token = token;
+        const token = jwt.sign({
+            username: username
+        }, JWT_SECRET)
+
+        // user.token = token;
+
         res.send({
             token
         })
@@ -59,7 +64,10 @@ app.post("/signin", (req, res) => {
 
 app.get("/me",(req, res)=>{
     const token = req.headers.authorization;
-    const user = users.find(u => u.token === token);
+    const decodeInformation = jwt.verify(token, JWT_SECRET);
+    const username = decodeInformation.username
+
+    const user = users.find(u => u.username === username);
     if(user){
         res.send({
             username: user.username
