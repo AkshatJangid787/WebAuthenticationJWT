@@ -34,7 +34,7 @@ app.post("/signup", (req, res)=>{
    })
 
    res.json({
-     message: "You are signed in"
+     message: "Account Created!"
    })
 })
 
